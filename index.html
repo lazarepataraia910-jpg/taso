@@ -32,7 +32,6 @@ body{
   padding-right:max(16px, env(safe-area-inset-right, 0px));
   -webkit-tap-highlight-color:transparent;
 }
-#sky{position:fixed; inset:0; width:100%; height:100%; pointer-events:none; z-index:0}
 .blob{position:fixed; width:46vmax; height:46vmax; border-radius:50%; filter:blur(60px); opacity:.6; pointer-events:none; z-index:0; animation:drift 18s ease-in-out infinite alternate}
 .b1{background:var(--blush); top:-16vmax; left:-12vmax}
 .b2{background:var(--rose-deep); bottom:-18vmax; right:-14vmax; animation-duration:23s}
@@ -114,7 +113,6 @@ button:focus-visible{outline:3px solid var(--wine); outline-offset:4px}
 }
 </style>
 
-<canvas id="sky" aria-hidden="true"></canvas>
 <div class="blob b1" aria-hidden="true"></div>
 <div class="blob b2" aria-hidden="true"></div>
 
@@ -161,74 +159,7 @@ const HINT = hint.textContent;
 const now = new Date();
 $('#date').textContent = [now.getDate(), now.getMonth() + 1, now.getFullYear()].map(n => String(n).padStart(2, '0')).join('.');
 
-/* ---- hearts on a canvas: ambient rise, bursts, cursor trail ---- */
-const cv = $('#sky'), cx = cv.getContext('2d');
-let W = 0, H = 0;
-function fit() {
-  const d = Math.min(devicePixelRatio || 1, 2);
-  W = innerWidth; H = innerHeight;
-  cv.width = W * d; cv.height = H * d;
-  cx.setTransform(d, 0, 0, d, 0, 0);
-}
-fit();
-
-const PINKS = ['#FBF1F1', '#F3DCDF', '#E3AEB8', '#C98593', '#A86A7B'];
-const TRAIL = ['#C98593', '#A86A7B', '#A50044'];
-const CLUB = ['#A50044', '#004D98', '#EDBB00', '#E3AEB8', '#FBF1F1'];
-const pick = a => a[Math.random() * a.length | 0];
 const rnd = (a, b) => a + Math.random() * (b - a);
-const parts = [];
-let party = 0; // frames of Barça-coloured hearts left
-
-const add = p => parts.push(Object.assign({ vx: 0, vy: 0, g: 0, rot: 0, vr: 0, amp: 0, sw: 0, life: 0, a: 1, max: 60 }, p));
-function rise(colors, y = H + 20) {
-  const vy = -rnd(.5, 1.4);
-  add({ x: rnd(0, W), y, vy, s: rnd(8, 26), c: pick(colors), a: rnd(.35, .85), amp: rnd(.2, .8), sw: rnd(.02, .05), vr: rnd(-.01, .01), max: (y + 40) / -vy });
-}
-function burst(x, y, n, colors) {
-  for (let i = 0; i < n; i++) {
-    const ang = rnd(0, Math.PI * 2), sp = rnd(2, 9);
-    add({ x, y, vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp - 3, g: .18, s: rnd(8, 22), c: pick(colors), rot: rnd(-1, 1), vr: rnd(-.1, .1), max: rnd(60, 110) });
-  }
-}
-function heart(p, alpha) {
-  cx.save();
-  cx.translate(p.x, p.y); cx.rotate(p.rot); cx.scale(p.s / 24, p.s / 24);
-  cx.globalAlpha = alpha; cx.fillStyle = p.c;
-  cx.beginPath();
-  cx.moveTo(0, 10);
-  cx.bezierCurveTo(-22, -4, -10, -20, 0, -8);
-  cx.bezierCurveTo(10, -20, 22, -4, 0, 10);
-  cx.fill();
-  cx.restore();
-}
-
-let last = performance.now();
-function tick(t) {
-  const dt = Math.min((t - last) / 16.7, 3); last = t;
-  cx.clearRect(0, 0, W, H);
-  if (!reduce && Math.random() < (party > 0 ? .9 : .12) * dt) rise(party > 0 ? CLUB : PINKS);
-  if (party > 0) party -= dt;
-  for (let i = parts.length; i--;) {
-    const p = parts[i];
-    p.life += dt; p.vy += p.g * dt; p.vx *= .985;
-    p.x += (p.vx + Math.sin(p.life * p.sw) * p.amp) * dt;
-    p.y += p.vy * dt; p.rot += p.vr * dt;
-    const k = p.life / p.max;
-    if (k >= 1) { parts.splice(i, 1); continue; }
-    heart(p, p.a * (1 - k * k));
-  }
-  requestAnimationFrame(tick);
-}
-if (!reduce) for (let i = 0; i < 18; i++) rise(PINKS, rnd(0, H));
-requestAnimationFrame(tick);
-
-let lastTrail = 0;
-if (!reduce) addEventListener('pointermove', e => {
-  if (e.timeStamp - lastTrail < 50) return;
-  lastTrail = e.timeStamp;
-  add({ x: e.clientX, y: e.clientY, vx: rnd(-.5, .5), vy: -rnd(.4, 1.2), s: rnd(6, 12), c: pick(TRAIL), a: .9, max: 45 });
-});
 
 /* ---- PSG: runs twice, third try gets NAAHAAA ---- */
 const SAY = ['ვერ დამიჭერ! 😜', 'ისევ ცდილობ? 🙈'];
@@ -254,13 +185,12 @@ function run() {
     void psg.offsetWidth;
     psg.focus({ preventScroll: true });
   }
-  const m = 16, top = 60; // room for the speech bubble
+  const W = innerWidth, H = innerHeight, m = 16, top = 60; // room for the speech bubble
   let x, y, n = 0;
   do { x = rnd(m, W - r.width - m); y = rnd(top, H - r.height - m); }
   while (Math.hypot(x - r.left, y - r.top) < 180 && ++n < 30);
   console.assert(x >= 0 && y >= 0 && x + r.width <= W && y + r.height <= H, 'PSG left the screen');
   psg.style.left = x + 'px'; psg.style.top = y + 'px';
-  burst(r.left + r.width / 2, r.top + r.height / 2, 12, PINKS);
   if (!reduce) psg.animate([{ transform: 'rotate(-360deg) scale(.5)' }, { transform: 'none' }], { duration: 450, easing: 'ease-out' });
 }
 
@@ -276,7 +206,6 @@ function naahaaa() {
   hint.textContent = HINT;
   nah.hidden = false;
   stage.classList.remove('shake'); void stage.offsetWidth; stage.classList.add('shake');
-  burst(W / 2, H / 2, reduce ? 15 : 70, PINKS);
   $('#nahClose').focus();
 }
 const closeNah = () => { nah.hidden = true; psg.focus({ preventScroll: true }); };
@@ -285,19 +214,15 @@ psg.addEventListener('pointerdown', attempt);
 psg.addEventListener('click', attempt); // keyboard
 nah.addEventListener('click', e => { if (e.target === nah || e.target.id === 'nahClose') closeNah(); });
 addEventListener('keydown', e => { if (e.key === 'Escape' && !nah.hidden) closeNah(); });
-addEventListener('resize', () => { fit(); if (psg.classList.contains('loose')) home(); });
+addEventListener('resize', () => { if (psg.classList.contains('loose')) home(); });
 
 /* ---- Barça: the right answer ---- */
 barca.addEventListener('click', () => {
-  const r = barca.getBoundingClientRect();
-  burst(r.left + r.width / 2, r.top + r.height / 2, reduce ? 20 : 120, CLUB);
-  party = 300;
   tries = 0; home(); hint.textContent = HINT;
   $('#ask').hidden = true; $('#win').hidden = false;
   $('#again').focus({ preventScroll: true });
 });
 $('#again').addEventListener('click', () => {
-  party = 0;
   $('#win').hidden = true; $('#ask').hidden = false;
   barca.focus({ preventScroll: true });
 });
