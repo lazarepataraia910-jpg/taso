@@ -87,6 +87,9 @@ h1{display:grid; gap:2px; font-size:clamp(1.6rem, 6.2vw, 2.5rem)}
 .hint{margin:22px 0 0; font-size:.95rem; color:var(--mauve)}
 
 .yes{font-size:clamp(2.6rem, 11vw, 4rem); color:var(--garnet); display:inline-block; animation:beat 1.4s 1s ease-in-out infinite}
+.next{margin:0 0 22px; padding-block:14px; border-block:1px dashed var(--mauve)}
+.next .eyebrow{margin:0 0 8px}
+.count{margin:0; font:400 clamp(2.2rem, 10vw, 3.2rem)/1 var(--f-loud); font-variant-numeric:tabular-nums; color:var(--blau)}
 .note{margin:12px auto 0; max-width:32ch; text-wrap:balance; font-size:clamp(1.05rem, 4vw, 1.25rem); line-height:1.6}
 
 .soft{font:600 1rem var(--f-display); color:var(--wine); background:var(--blush); border:2px solid var(--wine); border-radius:999px; padding:12px 24px; cursor:pointer; box-shadow:0 4px 0 var(--wine); transition:transform .15s, box-shadow .15s}
@@ -139,6 +142,10 @@ button:focus-visible{outline:3px solid var(--wine); outline-offset:4px}
       <h2 class="yes">ვიცოდი!</h2>
       <p class="note">ბარსა დღეს მოიგებს, შენ კი ჩემი გული დიდი ხანია მოიგე.</p>
       <p class="script">Visca el Barça <span class="heart">♥</span></p>
+      <div class="next">
+        <p class="eyebrow">შემდეგი კითხვა იქნება 1:30-ში</p>
+        <p class="count" id="count" role="timer">--:--:--</p>
+      </div>
       <button id="again" class="soft" type="button">კიდევ ერთხელ</button>
     </article>
   </div>
@@ -147,7 +154,7 @@ button:focus-visible{outline:3px solid var(--wine); outline-offset:4px}
 <div class="nah" id="nah" role="dialog" aria-modal="true" aria-label="NAAHAAA" hidden>
   <div class="finger" aria-hidden="true">☝️</div>
   <p class="nah-word" aria-hidden="true"><span style="--i:0">N</span><span style="--i:1">A</span><span style="--i:2">A</span><span style="--i:3">H</span><span style="--i:4">A</span><span style="--i:5">A</span><span style="--i:6">A</span></p>
-  <p class="nah-sub">პარიზი? არა, ჩემო კარგო. მხოლოდ ბარსა ♥</p>
+  <p class="nah-sub">პარიზი? არა. მხოლოდ ბარსა ♥</p>
   <button id="nahClose" class="soft" type="button">კარგი, კარგი</button>
 </div>
 
@@ -222,6 +229,19 @@ barca.addEventListener('click', () => {
   $('#ask').hidden = true; $('#win').hidden = false;
   $('#again').focus({ preventScroll: true });
 });
+/* ---- countdown to the next question at 01:30 ---- */
+const target = new Date(); target.setHours(1, 30, 0, 0);
+if (target <= Date.now()) target.setDate(target.getDate() + 1);
+const hms = s => [s / 3600, s / 60 % 60, s % 60].map(n => String(Math.floor(n)).padStart(2, '0')).join(':');
+console.assert(hms(3661) === '01:01:01' && hms(0) === '00:00:00', 'hms format');
+const count = $('#count');
+function tickCount() {
+  const s = Math.max(0, Math.round((target - Date.now()) / 1000));
+  count.textContent = s ? hms(s) : 'დროა!';
+  if (!reduce) count.animate([{ transform: 'scale(1.1)' }, { transform: 'none' }], { duration: 400, easing: 'ease-out' });
+}
+tickCount(); setInterval(tickCount, 1000);
+
 $('#again').addEventListener('click', () => {
   $('#win').hidden = true; $('#ask').hidden = false;
   barca.focus({ preventScroll: true });
