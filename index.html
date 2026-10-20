@@ -236,7 +236,7 @@ let tries = 0, lastTry = -1e4;
 
 function attempt(e) {
   e.preventDefault();
-  if (e.timeStamp - lastTry < 400) return; // one grab fires enter + down + click
+  if (e.timeStamp - lastTry < 400) return; // one press fires pointerdown + click
   lastTry = e.timeStamp;
   if (++tries >= 3) return naahaaa();
   run();
@@ -281,7 +281,6 @@ function naahaaa() {
 }
 const closeNah = () => { nah.hidden = true; psg.focus({ preventScroll: true }); };
 
-psg.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') attempt(e); });
 psg.addEventListener('pointerdown', attempt);
 psg.addEventListener('click', attempt); // keyboard
 nah.addEventListener('click', e => { if (e.target === nah || e.target.id === 'nahClose') closeNah(); });
