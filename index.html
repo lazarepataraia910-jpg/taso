@@ -273,8 +273,11 @@ function tickCount() {
 }
 setInterval(tickCount, 1000);
 
-// a refresh keeps the countdown going instead of going back to the question
-try { target = +localStorage.getItem('tasoTarget') || 0; } catch {}
+// a refresh keeps the countdown going instead of going back to the question; #reset starts over
+try {
+  if (location.hash === '#reset') { localStorage.removeItem('tasoTarget'); history.replaceState(null, '', location.pathname); }
+  target = +localStorage.getItem('tasoTarget') || 0;
+} catch {}
 if (target) showWin();
 
 </script>
