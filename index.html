@@ -114,7 +114,7 @@ button:focus-visible{outline:3px solid var(--wine); outline-offset:4px}
 .love-text{margin:0; max-width:28ch; color:var(--paper); font-size:clamp(1.2rem, 4.6vw, 1.7rem); font-weight:600; line-height:1.6; text-wrap:balance}
 .love-text span{display:inline-block; animation:rise .6s ease-out calc(1.2s + var(--i) * 140ms) both}
 @keyframes rise{from{opacity:0; transform:translateY(16px)}}
-.love .soft{animation-delay:2.8s}
+.love .soft{animation-delay:3.8s}
 
 .shake{animation:shake .5s}
 @keyframes shake{20%{transform:translate(-10px, 4px) rotate(-1deg)} 40%{transform:translate(9px, -5px) rotate(1deg)} 60%{transform:translate(-6px, 3px)} 80%{transform:translate(4px, -2px)}}
@@ -166,8 +166,9 @@ button:focus-visible{outline:3px solid var(--wine); outline-offset:4px}
 </div>
 
 <div class="nah love" id="love" role="dialog" aria-modal="true" aria-labelledby="loveTitle" hidden>
-  <h2 class="love-title" id="loveTitle"><span style="--i:0">ტასო,</span> <span style="--i:1">მომწონხარ</span></h2>
+  <h2 class="love-title" id="loveTitle"><span style="--i:0">ტასო,</span></h2>
   <p class="love-text" id="loveText">ვფიქრობ, რომ ძალიან ლამაზი ხარ, როგორც გარეგნულად, ასევე შინაგანად.</p>
+  <p class="love-title"><span style="--i:7">მომწონხარ</span></p>
   <button id="loveClose" class="soft" type="button">დახურვა</button>
 </div>
 
