@@ -151,8 +151,8 @@ button:focus-visible{outline:3px solid var(--wine); outline-offset:4px}
       <p class="note">ბარსა დღეს მოიგებს, შენ კი ჩემი გული დიდი ხანია მოიგე.</p>
       <p class="script">Visca el Barça <span class="heart">♥</span></p>
       <div class="next">
-        <p class="eyebrow">შემდეგი კითხვა იქნება წუთნახევარში</p>
-        <p class="count" id="count" role="timer">01:30</p>
+        <p class="eyebrow">შემდეგი კითხვა იქნება საათნახევარში</p>
+        <p class="count" id="count" role="timer">01:30:00</p>
       </div>
     </article>
   </div>
@@ -246,25 +246,25 @@ function showWin() {
   tries = 0; home(); hint.textContent = HINT;
   nah.hidden = true;
   $('#ask').hidden = true; $('#win').hidden = false;
-  target ||= Date.now() + 90 * 1000;
+  target ||= Date.now() + 90 * 60 * 1000; // an hour and a half
   try { localStorage.setItem('tasoTarget', target); } catch {}
   tickCount();
 }
 barca.addEventListener('click', showWin);
 $('#nahClose').addEventListener('click', showWin); // "კარგი, კარგი" accepts Barça and starts the countdown
-/* ---- 1:30 countdown from the win screen, then the confession instead of a question ---- */
+/* ---- 1h30m countdown from the win screen, then the confession instead of a question ---- */
 let target = 0; // set when the countdown screen opens
 const love = $('#love'), loveText = $('#loveText');
 loveText.innerHTML = loveText.textContent.split(' ').map((w, i) => `<span style="--i:${i}">${w}</span>`).join(' ');
 let loved = false;
 $('#loveClose').addEventListener('click', () => { love.hidden = true; });
-const mmss = s => [s / 60, s % 60].map(n => String(Math.floor(n)).padStart(2, '0')).join(':');
-console.assert(mmss(90) === '01:30' && mmss(0) === '00:00', 'mmss format');
+const hms = s => [s / 3600, s / 60 % 60, s % 60].map(n => String(Math.floor(n)).padStart(2, '0')).join(':');
+console.assert(hms(5400) === '01:30:00' && hms(0) === '00:00:00', 'hms format');
 const count = $('#count');
 function tickCount() {
   if (!target) return;
   const s = Math.max(0, Math.round((target - Date.now()) / 1000));
-  count.textContent = s ? mmss(s) : 'დროა!';
+  count.textContent = s ? hms(s) : 'დროა!';
   if (!s && !loved && !$('#win').hidden) {
     loved = true; love.hidden = false; $('#loveClose').focus();
     try { localStorage.removeItem('tasoTarget'); } catch {} // done: the next visit starts from the question
