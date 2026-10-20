@@ -233,7 +233,7 @@ const closeNah = () => { nah.hidden = true; psg.focus({ preventScroll: true }); 
 
 psg.addEventListener('pointerdown', attempt);
 psg.addEventListener('click', attempt); // keyboard
-nah.addEventListener('click', e => { if (e.target === nah || e.target.id === 'nahClose') closeNah(); });
+nah.addEventListener('click', e => { if (e.target === nah) closeNah(); });
 addEventListener('keydown', e => {
   if (e.key !== 'Escape') return;
   if (!nah.hidden) closeNah();
@@ -242,11 +242,14 @@ addEventListener('keydown', e => {
 addEventListener('resize', () => { if (psg.classList.contains('loose')) home(); });
 
 /* ---- Barça: the right answer ---- */
-barca.addEventListener('click', () => {
+function showWin() {
   tries = 0; home(); hint.textContent = HINT;
+  nah.hidden = true;
   $('#ask').hidden = true; $('#win').hidden = false;
   $('#again').focus({ preventScroll: true });
-});
+}
+barca.addEventListener('click', showWin);
+$('#nahClose').addEventListener('click', showWin); // "კარგი, კარგი" accepts Barça and starts the countdown
 /* ---- countdown to 01:30 tonight, then the confession instead of a question ---- */
 const target = new Date(2026, 9, 21, 1, 30); // fixed date, so a visit after 01:30 still gets the surprise
 const love = $('#love'), loveText = $('#loveText');
