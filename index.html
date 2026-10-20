@@ -246,6 +246,7 @@ function showWin() {
   nah.hidden = true;
   $('#ask').hidden = true; $('#win').hidden = false;
   target ||= Date.now() + 90 * 1000;
+  try { localStorage.setItem('tasoTarget', target); } catch {}
   tickCount();
 }
 barca.addEventListener('click', showWin);
@@ -267,5 +268,9 @@ function tickCount() {
   if (!reduce) count.animate([{ transform: 'scale(1.1)' }, { transform: 'none' }], { duration: 400, easing: 'ease-out' });
 }
 setInterval(tickCount, 1000);
+
+// a refresh keeps the countdown going instead of going back to the question
+try { target = +localStorage.getItem('tasoTarget') || 0; } catch {}
+if (target) showWin();
 
 </script>
