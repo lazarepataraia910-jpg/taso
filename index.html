@@ -265,7 +265,10 @@ function tickCount() {
   if (!target) return;
   const s = Math.max(0, Math.round((target - Date.now()) / 1000));
   count.textContent = s ? mmss(s) : 'დროა!';
-  if (!s && !loved && !$('#win').hidden) { loved = true; love.hidden = false; $('#loveClose').focus(); }
+  if (!s && !loved && !$('#win').hidden) {
+    loved = true; love.hidden = false; $('#loveClose').focus();
+    try { localStorage.removeItem('tasoTarget'); } catch {} // done: the next visit starts from the question
+  }
   if (!reduce) count.animate([{ transform: 'scale(1.1)' }, { transform: 'none' }], { duration: 400, easing: 'ease-out' });
 }
 setInterval(tickCount, 1000);
