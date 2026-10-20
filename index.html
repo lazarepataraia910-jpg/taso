@@ -279,5 +279,6 @@ try {
   target = +localStorage.getItem('tasoTarget') || 0;
 } catch {}
 if (target) showWin();
+addEventListener('hashchange', () => { if (location.hash === '#reset') location.reload(); }); // #reset typed on an open page
 
 </script>
