@@ -108,6 +108,14 @@ button:focus-visible{outline:3px solid var(--wine); outline-offset:4px}
 .nah-sub{margin:0; color:var(--paper); font-size:clamp(1.05rem, 4vw, 1.35rem); font-weight:600; animation:pop .5s .7s both}
 .nah .soft{animation:pop .5s .9s both}
 
+.love-title{margin:0; font-size:clamp(2.4rem, 10vw, 5rem); color:var(--paper); text-shadow:0 4px 0 var(--garnet), 0 10px 30px rgba(0,0,0,.35)}
+.love-title span{display:inline-block; animation:pop .7s cubic-bezier(.3,1.8,.5,1) calc(.2s + var(--i) * 400ms) both, glow-text 2.4s ease-in-out 1.4s infinite}
+@keyframes glow-text{50%{text-shadow:0 4px 0 var(--garnet), 0 0 34px var(--blush)}}
+.love-text{margin:0; max-width:28ch; color:var(--paper); font-size:clamp(1.2rem, 4.6vw, 1.7rem); font-weight:600; line-height:1.6; text-wrap:balance}
+.love-text span{display:inline-block; animation:rise .6s ease-out calc(1.2s + var(--i) * 140ms) both}
+@keyframes rise{from{opacity:0; transform:translateY(16px)}}
+.love .soft{animation-delay:2.8s}
+
 .shake{animation:shake .5s}
 @keyframes shake{20%{transform:translate(-10px, 4px) rotate(-1deg)} 40%{transform:translate(9px, -5px) rotate(1deg)} 60%{transform:translate(-6px, 3px)} 80%{transform:translate(4px, -2px)}}
 
@@ -156,6 +164,12 @@ button:focus-visible{outline:3px solid var(--wine); outline-offset:4px}
   <p class="nah-word" aria-hidden="true"><span style="--i:0">N</span><span style="--i:1">A</span><span style="--i:2">A</span><span style="--i:3">H</span><span style="--i:4">A</span><span style="--i:5">A</span><span style="--i:6">A</span></p>
   <p class="nah-sub">პარიზი? არა. მხოლოდ ბარსა ♥</p>
   <button id="nahClose" class="soft" type="button">კარგი, კარგი</button>
+</div>
+
+<div class="nah love" id="love" role="dialog" aria-modal="true" aria-labelledby="loveTitle" hidden>
+  <h2 class="love-title" id="loveTitle"><span style="--i:0">ტასო,</span> <span style="--i:1">მომწონხარ</span></h2>
+  <p class="love-text" id="loveText">ვფიქრობ, რომ ძალიან ლამაზი ხარ, როგორც გარეგნულად, ასევე შინაგანად.</p>
+  <button id="loveClose" class="soft" type="button">დახურვა</button>
 </div>
 
 <script>
@@ -220,7 +234,11 @@ const closeNah = () => { nah.hidden = true; psg.focus({ preventScroll: true }); 
 psg.addEventListener('pointerdown', attempt);
 psg.addEventListener('click', attempt); // keyboard
 nah.addEventListener('click', e => { if (e.target === nah || e.target.id === 'nahClose') closeNah(); });
-addEventListener('keydown', e => { if (e.key === 'Escape' && !nah.hidden) closeNah(); });
+addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  if (!nah.hidden) closeNah();
+  love.hidden = true;
+});
 addEventListener('resize', () => { if (psg.classList.contains('loose')) home(); });
 
 /* ---- Barça: the right answer ---- */
@@ -229,15 +247,19 @@ barca.addEventListener('click', () => {
   $('#ask').hidden = true; $('#win').hidden = false;
   $('#again').focus({ preventScroll: true });
 });
-/* ---- countdown to the next question at 01:30 ---- */
-const target = new Date(); target.setHours(1, 30, 0, 0);
-if (target <= Date.now()) target.setDate(target.getDate() + 1);
+/* ---- countdown to 01:30 tonight, then the confession instead of a question ---- */
+const target = new Date(2026, 9, 21, 1, 30); // fixed date, so a visit after 01:30 still gets the surprise
+const love = $('#love'), loveText = $('#loveText');
+loveText.innerHTML = loveText.textContent.split(' ').map((w, i) => `<span style="--i:${i}">${w}</span>`).join(' ');
+let loved = false;
+$('#loveClose').addEventListener('click', () => { love.hidden = true; });
 const hms = s => [s / 3600, s / 60 % 60, s % 60].map(n => String(Math.floor(n)).padStart(2, '0')).join(':');
 console.assert(hms(3661) === '01:01:01' && hms(0) === '00:00:00', 'hms format');
 const count = $('#count');
 function tickCount() {
   const s = Math.max(0, Math.round((target - Date.now()) / 1000));
   count.textContent = s ? hms(s) : 'დროა!';
+  if (!s && !loved && !$('#win').hidden) { loved = true; love.hidden = false; $('#loveClose').focus(); }
   if (!reduce) count.animate([{ transform: 'scale(1.1)' }, { transform: 'none' }], { duration: 400, easing: 'ease-out' });
 }
 tickCount(); setInterval(tickCount, 1000);
